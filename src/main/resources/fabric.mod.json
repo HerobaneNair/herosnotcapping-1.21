@@ -3,7 +3,7 @@
 	"id": "herosnotcapping",
 	"version": "${version}",
 	"name": "HerosNotCapping",
-	"description": "Disables caps lock so it can be used as a keybind only when on minecraft and not in a gui",
+	"description": "Disables caps lock so it can be used as a keybind only when on minecraft gameplay",
 	"authors": [
 		"HerobaneNair"
 	],
