@@ -2,54 +2,57 @@ package hero.bane;
 
 import hero.bane.command.HerosNotCappingCommand;
 import hero.bane.helper.User32Helper;
-import hero.bane.mixin.BoundKeyAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class HerosNotCapping implements ClientModInitializer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger("herosnotcapping");
-	private static boolean hasCheckedKeybinds = false;
+
+	//false: GUI Mode, true: Keybind Mode
+	private static boolean keybindMode = false;
+	private static Screen lastScreen = null;
 
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("HerosNotCapping mod initialized.");
 
-		// Wait until the client is fully loaded to check keybinds
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (!hasCheckedKeybinds && client.options != null) {
-				checkAndDisableCapsLock();
-				hasCheckedKeybinds = true;
+			if (keybindMode) {
+				if (isCapsLockOn()) {
+					disableCapsLock();
+				}
+			} else {
+				if (shouldDisableCapsLock(client)) {
+					disableCapsLock();
+				}
 			}
-
-			if (isCapsLockOn()) {
-				disableCapsLock();
-			}
+			lastScreen = client.currentScreen;
 		});
 
 		HerosNotCappingCommand.register();
 	}
 
-	public static void checkAndDisableCapsLock() {
+	private static boolean shouldDisableCapsLock(MinecraftClient client) {
+		return lastScreen == null && client.currentScreen != null;
+	}
+
+	public static void toggleMode() {
+		keybindMode = !keybindMode;
+		String modeText = keybindMode ? "Keybind Mode" : "GUI Mode";
+
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.options == null) return;
-
-		for (KeyBinding keyBind : client.options.allKeys) {
-			InputUtil.Key key = ((BoundKeyAccessor) keyBind).getBoundKey();
-
-			if (key.getCode() == GLFW.GLFW_KEY_CAPS_LOCK) { // 280 = Caps Lock
-				LOGGER.info("Detected Caps Lock assigned to keybind: {}, disabling Caps Lock...", keyBind.getTranslationKey());
-				disableCapsLock();
-				return;
-			}
+		if (client.player != null) {
+			client.player.sendMessage(Text.literal("HerosNotCapping is now in " + modeText), false);
 		}
+
+		LOGGER.info("HerosNotCapping switched to {}", modeText);
 	}
 
 	private static boolean isCapsLockOn() {
@@ -71,12 +74,15 @@ public class HerosNotCapping implements ClientModInitializer {
 				disableCapsLockMac();
 			} else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
 				disableCapsLockLinux();
+			} else {
+				System.out.println("Unknown OS");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error disabling Caps Lock", e);
 		}
 	}
 
+	//ChatGPT'ed
 	private static void disableCapsLockMac() {
 		try {
 			new ProcessBuilder("osascript", "-e",
@@ -86,6 +92,7 @@ public class HerosNotCapping implements ClientModInitializer {
 		}
 	}
 
+	//ChatGPT'ed
 	private static void disableCapsLockLinux() {
 		try {
 			new ProcessBuilder("xdotool", "key", "Caps_Lock").start();
