@@ -8,10 +8,9 @@
 		"HerobaneNair"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/HerobaneNair/herosnotcapping-1.21"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/herosnotcapping/icon.png",
 	"environment": "*",
 	"entrypoints": {
