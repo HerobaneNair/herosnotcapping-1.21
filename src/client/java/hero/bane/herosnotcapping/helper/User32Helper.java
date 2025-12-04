@@ -1,4 +1,4 @@
-package hero.bane.helper;
+package hero.bane.herosnotcapping.helper;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;

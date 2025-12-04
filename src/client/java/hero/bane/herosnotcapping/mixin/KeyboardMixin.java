@@ -1,6 +1,6 @@
-package hero.bane.mixin;
+package hero.bane.herosnotcapping.mixin;
 
-import hero.bane.helper.User32Helper;
+import hero.bane.herosnotcapping.helper.User32Helper;
 import net.minecraft.client.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
